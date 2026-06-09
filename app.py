@@ -19,7 +19,7 @@ st.sidebar.image("DMC.png", width=100)
 # Mostramos un texto indicando el autor del proyecto
 st.write("Elaborado por: Carlos Portocarrero")
 
-modulos = st.selectbox("Seleccione un módulo",  ["Home","Carga y perfil del dataset","Procesamiento de datos","Análisis visual"]) 
+modulos = st.sidebar.selectbox("Seleccione un módulo",  ["Home","Carga y perfil del dataset","Procesamiento de datos","Análisis visual"]) 
 
 
 # Creamos un cargador de archivos para subir archivos Excel o CSV
