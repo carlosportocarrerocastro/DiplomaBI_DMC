@@ -24,7 +24,7 @@ modulos = st.sidebar.selectbox("Seleccione un módulo",  ["Home","Carga y perfil
 if modulos == "Home":
   st.write("Bienvenido a la aplicación")
 
-elif modulos ="Carga y perfil del dataset"
+elif modulos == "Carga y perfil del dataset"
 
  # Creamos un cargador de archivos para subir archivos Excel o CSV
  archivo = st.file_uploader("Cargue el archivo excel o csv")
