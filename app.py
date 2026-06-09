@@ -19,7 +19,10 @@ st.sidebar.image("DMC.png", width=100)
 # Mostramos un texto indicando el autor del proyecto
 st.write("Elaborado por: Carlos Portocarrero")
 
- # Creamos un cargador de archivos para subir archivos Excel o CSV
+modulos = st.selectbox("Seleccione un módulo",  ["Home","Carga y perfil del dataset","Procesamiento de datos","Análisis visual"]) 
+
+
+# Creamos un cargador de archivos para subir archivos Excel o CSV
 archivo = st.file_uploader("Cargue el archivo excel o csv")
 
 # Validamos si el usuario cargó un archivo
