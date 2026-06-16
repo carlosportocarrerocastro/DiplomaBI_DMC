@@ -1,381 +1,270 @@
-# Importamos Streamlit para crear la aplicación web
+# ============================================================
+# IMPORTAMOS LIBRERÍAS
+# ============================================================
 
 import streamlit as st
-
- 
-
-# Importamos Pandas para leer archivos CSV y Excel
-
 import pandas as pd
+import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
 
- 
+# ============================================================
+# CONFIGURACIÓN DE LA APP
+# ============================================================
 
- 
+st.set_page_config(page_title="App BI", layout="wide")
 
-# ==============================
-
-# CONFIGURACIÓN DE SESSION STATE
-
-# ==============================
-
- 
-
-# Guardamos el dataset cargado
+# ============================================================
+# SESSION STATE
+# ============================================================
 
 if "data" not in st.session_state:
-
     st.session_state.data = None
 
- 
-
-# Guardamos el nombre del archivo cargado
-
 if "nombre_archivo" not in st.session_state:
-
     st.session_state.nombre_archivo = None
 
- 
+# ============================================================
+# INTERFAZ
+# ============================================================
 
- 
+st.title("📊 App Analizadora de Datasets")
+st.sidebar.title("⚙️ Navegación")
 
-# ==============================
+st.write("📌 Elaborado por: Carlos Alberto Portocarrero")
 
-# TÍTULO E IMÁGENES
+# ============================================================
+# MENÚ
+# ============================================================
 
-# ==============================
+modulos = st.sidebar.selectbox(
+    "Seleccione un módulo",
+    ["Home", "Carga y perfil del dataset", "Procesamiento de datos", "Análisis visual"]
+)
 
- 
-
-# Creamos el título principal de la aplicación
-
-st.title("Proyecto Final Diploma BI")
-
- 
-
-# Creamos un título en la barra lateral
-
-st.sidebar.title("Parámetros")
-
- 
-
-# Mostramos una imagen en la página principal con un ancho de 500 píxeles
-
-st.image("Python_logo.png", width=500)
-
- 
-
-# Mostramos una imagen en la barra lateral con un ancho de 100 píxeles
-
-st.sidebar.image("DMC.png", width=100)
-
- 
-
-# Mostramos un texto indicando el autor del proyecto
-
-st.write("Elaborado por: Carlos Carrillo")
-
- 
-
- 
-
-# ==============================
-
-# MENÚ DE MÓDULOS
-
-# ==============================
-
- 
-
-modulos = st.sidebar.selectbox( "Seleccione un módulo",
-
-                               ["Home","Carga y perfil del dataset","Procesamiento de datos", "Análisis visual"])
-
- 
-
- 
-
-# ==============================
-
-# MÓDULO HOME
-
-# ==============================
-
- 
+# ============================================================
+# HOME
+# ============================================================
 
 if modulos == "Home":
 
- 
+    st.header("🏠 Presentación")
 
-    st.write("Bienvenido a la aplicación")
+    st.write("""
+    Aplicación para análisis exploratorio de datos.
 
- 
+    Tecnologías:
+    - Python
+    - Pandas
+    - Streamlit
+    - Plotly
+    - Seaborn
+    """)
 
-    if st.session_state.data is not None:
-
-        st.success(f"Dataset cargado: {st.session_state.nombre_archivo}")
-
-    else:
-
-        st.info("Aún no se ha cargado ningún dataset.")
-
- 
-
- 
-
-# ==============================
-
-# MÓDULO CARGA Y PERFIL
-
-# ==============================
-
- 
+# ============================================================
+# CARGA
+# ============================================================
 
 elif modulos == "Carga y perfil del dataset":
 
- 
+    st.header("📂 Carga de dataset")
 
-    st.subheader("Carga y perfil del dataset")
-
- 
-
-    # Creamos un cargador de archivos para subir archivos Excel o CSV
-
-    archivo = st.file_uploader(
-
-        "Cargue el archivo Excel o CSV",
-
-        type=["csv", "xlsx"]
-
-    )
-
- 
-
-    # Validamos si el usuario cargó un archivo
+    archivo = st.file_uploader("Sube tu CSV", type=["csv"])
 
     if archivo is not None:
 
- 
+        df = pd.read_csv(archivo)
 
-        # Guardamos el nombre del archivo en session_state
-
+        st.session_state.data = df
         st.session_state.nombre_archivo = archivo.name
-
- 
-
-        # Validamos si el archivo cargado tiene extensión .csv
-
-        if archivo.name.endswith(".csv"):
-
- 
-
-            # Leemos el archivo CSV y lo guardamos en session_state
-
-            st.session_state.data = pd.read_csv(archivo)
-
- 
-
-        # Validamos si el archivo cargado tiene extensión .xlsx
-
-        elif archivo.name.endswith(".xlsx"):
-
- 
-
-            # Leemos el archivo Excel y lo guardamos en session_state
-
-            st.session_state.data = pd.read_excel(archivo)
-
- 
-
-        # Si el archivo no es CSV ni Excel, mostramos un mensaje de error
-
-        else:
-
-            st.error("Formato no válido")
-
- 
-
-        # Confirmamos que el archivo fue cargado
-
-        st.success("Archivo cargado correctamente")
-
- 
-
-    # Si ya existe un dataset cargado, lo mostramos
 
     if st.session_state.data is not None:
 
- 
+        df = st.session_state.data
 
-        st.write(f"Archivo actual: **{st.session_state.nombre_archivo}**")
+        st.dataframe(df.head())
 
- 
+        col1, col2, col3 = st.columns(3)
 
-        st.subheader("Vista previa del dataset")
+        col1.metric("Filas", df.shape[0])
+        col2.metric("Columnas", df.shape[1])
+        col3.metric("Nulos", int(df.isnull().sum().sum()))
 
-        st.dataframe(st.session_state.data)
+        st.write(df.dtypes)
 
- 
-
-        st.subheader("Perfil básico del dataset")
-
- 
-
-        # Número de filas y columnas
-
-        st.write("Filas:", st.session_state.data.shape[0])
-
-        st.write("Columnas:", st.session_state.data.shape[1])
-
- 
-
-        # Nombres de columnas
-
-        st.write("Columnas del dataset:")
-
-        st.write(st.session_state.data.columns.tolist())
-
- 
-
-        # Tipos de datos
-
-        st.write("Tipos de datos:")
-
-        st.write(st.session_state.data.dtypes)
-
- 
-
-        # Valores nulos
-
-        st.write("Valores nulos por columna:")
-
-        st.write(st.session_state.data.isnull().sum())
-
- 
-
-        # Estadística descriptiva
-
-        st.write("Estadística descriptiva:")
-
-        st.write(st.session_state.data.describe())
-
- 
-
-        # Botón para eliminar el dataset cargado
-
-        if st.button("Eliminar dataset cargado"):
-
-            st.session_state.data = None
-
-            st.session_state.nombre_archivo = None
-
-            st.rerun()
-
- 
+        st.subheader("Estadística descriptiva")
+        st.dataframe(df.describe())
 
     else:
+        st.warning("Carga un archivo")
 
-        st.write("Por favor cargue su archivo.")
-
- 
-
- 
-
-# ==============================
-
-# MÓDULO PROCESAMIENTO DE DATOS
-
-# ==============================
-
- 
+# ============================================================
+# PROCESAMIENTO
+# ============================================================
 
 elif modulos == "Procesamiento de datos":
 
- 
+    st.header("🛠 Procesamiento")
 
-    st.subheader("Procesamiento de datos")
-
- 
-
-    if st.session_state.data is not None:
-
- 
-
-        data = st.session_state.data
-
- 
-
-        st.write("Dataset disponible para procesamiento:")
-
-        st.dataframe(data)
-
- 
-
-        st.write("Valores nulos por columna:")
-
-        st.write(data.isnull().sum())
-
- 
-
+    if st.session_state.data is None:
+        st.warning("Carga datos primero")
     else:
 
-        st.warning(
+        df = st.session_state.data.copy()
 
-            "Primero debe cargar un dataset en el módulo "
+        numericas = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
+        categoricas = df.select_dtypes(include=["object"]).columns.tolist()
 
-            "'Carga y perfil del dataset'."
+        st.write("Numéricas:", numericas)
+        st.write("Categóricas:", categoricas)
 
-        )
+        st.subheader("Nulos")
+        st.dataframe(df.isnull().sum().reset_index().rename(columns={"index": "Columna", 0: "Nulos"}))
 
- 
+        st.subheader("Duplicados")
+        st.write(df.duplicated().sum())
 
- 
+        if len(categoricas) > 0:
 
-# ==============================
+            col = st.selectbox("Filtrar", categoricas)
+            vals = st.multiselect("Valores", df[col].dropna().unique())
 
-# MÓDULO ANÁLISIS VISUAL
+            if vals:
+                df = df[df[col].isin(vals)]
 
-# ==============================
+        st.dataframe(df)
 
- 
+# ============================================================
+# VISUAL
+# ============================================================
 
 elif modulos == "Análisis visual":
 
- 
+    st.header("📊 Análisis Visual")
 
-    st.subheader("Análisis visual")
-
- 
-
-    if st.session_state.data is not None:
-
- 
-
-        data = st.session_state.data
-
- 
-
-        st.write("Dataset disponible para análisis visual:")
-
-        st.dataframe(data)
-
- 
-
+    if st.session_state.data is None:
+        st.warning("Carga un dataset primero")
     else:
 
-        st.warning(
+        df = st.session_state.data.copy()
 
-            "Primero debe cargar un dataset en el módulo "
+        numericas = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
+        categoricas = df.select_dtypes(include=["object"]).columns.tolist()
 
-            "'Carga y perfil del dataset'."
+        # Detectar columnas fecha
+        fechas = []
+        for col in df.columns:
+            if "date" in col.lower() or "fecha" in col.lower():
+                df[col] = pd.to_datetime(df[col], errors="coerce")
+                fechas.append(col)
 
-        )
+        # CREACIÓN DE TABS
+        tabs = st.tabs([
+            "📌 Resumen",
+            "📊 Univariado",
+            "🔗 Bivariado",
+            "🔥 Multivariado",
+            "📈 Temporal",
+            "💡 Insights"
+        ])
 
-    lista_columna_numerica = data.select_dtypes(include = "number").columns.tolist()
+        # ================= TAB 1 =================
+        with tabs[0]:
 
-    variable_numerica = st.selectbox("Selecione la columna númerica",lista_columna_numerica)
+            st.subheader("Información general")
 
- 
+            st.dataframe(df.head())
 
-    lista_columna_categorica = data.select_dtypes(include=["object", "category"]).columns.tolist()
+            col1, col2, col3 = st.columns(3)
 
-    variable_categorica = st.selectbox("Seleccione la columna categórica",lista_columna_categorica)
+            col1.metric("Filas", df.shape[0])
+            col2.metric("Columnas", df.shape[1])
+            col3.metric("Nulos", int(df.isnull().sum().sum()))
+
+        # ================= TAB 2 =================
+        with tabs[1]:
+
+            st.subheader("Análisis univariado")
+
+            col = st.selectbox("Selecciona variable", df.columns)
+
+            if col in numericas:
+
+                fig = px.histogram(df, x=col, title=f"Histograma de {col}")
+                st.plotly_chart(fig, use_container_width=True)
+
+                fig2 = px.box(df, y=col, title=f"Boxplot de {col}")
+                st.plotly_chart(fig2, use_container_width=True)
+
+            else:
+
+                conteo = df[col].value_counts().reset_index()
+                conteo.columns = [col, "count"]
+
+                fig = px.bar(conteo, x=col, y="count", title=f"Conteo de {col}")
+                st.plotly_chart(fig, use_container_width=True)
+
+        # ================= TAB 3 =================
+        with tabs[2]:
+
+            st.subheader("Análisis bivariado")
+
+            if len(numericas) >= 2:
+
+                x = st.selectbox("Variable X", numericas, key="x_bivariado")
+                y = st.selectbox("Variable Y", numericas, key="y_bivariado")
+
+                fig = px.scatter(df, x=x, y=y, title=f"Relación entre {x} y {y}")
+                st.plotly_chart(fig, use_container_width=True)
+
+            else:
+                st.warning("No hay suficientes variables numéricas")
+
+        # ================= TAB 4 =================
+        with tabs[3]:
+
+            st.subheader("Análisis multivariado - Correlación")
+
+            if len(numericas) > 1:
+
+                corr = df[numericas].corr()
+
+                fig, ax = plt.subplots(figsize=(10, 6))
+                sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
+
+                st.pyplot(fig)
+
+            else:
+                st.warning("No hay suficientes variables numéricas")
+
+        # ================= TAB 5 =================
+        with tabs[4]:
+
+            st.subheader("Análisis temporal")
+
+            if len(fechas) > 0 and len(numericas) > 0:
+
+                fecha = st.selectbox("Columna fecha", fechas)
+                valor = st.selectbox("Variable numérica", numericas)
+
+                df_temp = df.sort_values(fecha)
+
+                fig = px.line(df_temp, x=fecha, y=valor, title=f"Evolución de {valor} por {fecha}")
+                st.plotly_chart(fig, use_container_width=True)
+
+            else:
+                st.info("No se detectaron columnas de fecha")
+
+        # ================= TAB 6 =================
+        with tabs[5]:
+
+            st.subheader("Insights")
+
+            st.success("Se identifican patrones relevantes en el dataset.")
+
+            if len(numericas) > 0:
+                st.write(f"La variable **{numericas[0]}** presenta variabilidad en sus valores.")
+
+            if len(categoricas) > 0:
+                top = df[categoricas[0]].value_counts().idxmax()
+                st.write(f"La categoría más frecuente en **{categoricas[0]}** es: **{top}**")
